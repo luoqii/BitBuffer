@@ -1,11 +1,20 @@
 package org.bbs.nio;
 
+
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteOrder;
 import java.nio.InvalidMarkException;
+import java.nio.ReadOnlyBufferException;
 
 //http://androidxref.com/8.1.0_r33/xref/libcore/ojluni/src/main/java/java/nio/Buffer.java
+/*
+ * java 中所以数字类型都是按照 BIG_ENDIAN 表示的
+ * ByteBuffer 可以支持 BIG_ENDIAN，LITTLE_ENDIAN 2中字节序，但不支持bit序
+ * 与字节序类似地，我们提供bit序
+ * 我们假定：
+ *  #bit序与字节序相同
+ */
 abstract public class BitBuffer {
 
     // Invariants: mark <= position <= limit <= capacity
@@ -17,7 +26,7 @@ abstract public class BitBuffer {
     // Creates a new buffer with the given mark, position, limit, and capacity,
     // after checking invariants.
     //
-    BitBuffer(int mark, int pos, int lim, int cap) {       // package-private
+    protected BitBuffer(int mark, int pos, int lim, int cap) {       // package-private
         if (cap < 0)
             throw new IllegalArgumentException("Negative capacity: " + cap);
         this.capacity = cap;
@@ -339,6 +348,42 @@ abstract public class BitBuffer {
         return this;
     }
 
+    /**
+     * Tells whether or not this buffer is backed by an accessible
+     * array.
+     *
+     * <p> If this method returns <tt>true</tt> then the {@link #array() array}
+     * and {@link #arrayOffset() arrayOffset} methods may safely be invoked.
+     * </p>
+     *
+     * @return <tt>true</tt> if, and only if, this buffer
+     * is backed by an array and is not read-only
+     * @since 1.6
+     */
+    public abstract boolean hasArray();
+
+    /**
+     * Returns the array that backs this
+     * buffer&nbsp;&nbsp;<i>(optional operation)</i>.
+     *
+     * <p> This method is intended to allow array-backed buffers to be
+     * passed to native code more efficiently. Concrete subclasses
+     * provide more strongly-typed return values for this method.
+     *
+     * <p> Modifications to this buffer's content will cause the returned
+     * array's content to be modified, and vice versa.
+     *
+     * <p> Invoke the {@link #hasArray hasArray} method before invoking this
+     * method in order to ensure that this buffer has an accessible backing
+     * array.  </p>
+     *
+     * @return The array that backs this buffer
+     * @throws ReadOnlyBufferException       If this buffer is backed by an array but is read-only
+     * @throws UnsupportedOperationException If this buffer is not backed by an accessible array
+     * @since 1.6
+     */
+    public abstract byte[] array();
+
 
     public static BitBuffer allocate(int bitSize){
         if (bitSize < 0)
@@ -346,9 +391,11 @@ abstract public class BitBuffer {
         return new HeapBitBuffer(bitSize);
     }
 
+    public static BitBuffer wrap(byte[] array){
+        return new HeapBitBuffer(array);
+    }
 
-    // interface
     public abstract int getInt(int bitSize);
 
-    public abstract BitBuffer setInt(int bitSize, byte value);
+    public abstract BitBuffer setInt(int bitSize, int value);
 }
