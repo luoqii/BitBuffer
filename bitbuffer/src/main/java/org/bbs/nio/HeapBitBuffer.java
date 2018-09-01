@@ -1,6 +1,8 @@
 package org.bbs.nio;
 
 
+import java.nio.BufferOverflowException;
+import java.nio.BufferUnderflowException;
 import java.nio.ByteOrder;
 
 public class HeapBitBuffer extends BitBuffer {
@@ -34,13 +36,24 @@ public class HeapBitBuffer extends BitBuffer {
 
     @Override
     public int getInt(int bitSize){
-        int value = getInt(position, bitSize);
+        if (position + bitSize > limit()){
+            throw new BufferUnderflowException();
+        }
+        int value = getIntAt(position, bitSize);
         position += bitSize;
         return value;
     }
 
+
     @Override
     public int getInt(int index, int bitSize) {
+        if (position + bitSize > limit()){
+            throw new IndexOutOfBoundsException();
+        }
+        return getIntAt(index, bitSize);
+    }
+
+    int getIntAt(int index, int bitSize) {
         if (DEBUG){
             Bits.log(TAG, "getInt index:" + index + " bitSize:" + bitSize + " position:" + position);
         }
@@ -136,13 +149,23 @@ public class HeapBitBuffer extends BitBuffer {
 
     @Override
     public BitBuffer putInt(int bitSize, int value) {
-        putInt(position, bitSize, value);
+        if (position + bitSize > limit()){
+            throw new BufferOverflowException();
+        }
+        putIntAt(position, bitSize, value);
         position += bitSize;
         return this;
     }
 
     @Override
     public BitBuffer putInt(int index, int bitSize, int value) {
+        if (position + bitSize > limit()){
+            throw new IndexOutOfBoundsException();
+        }
+        return putIntAt(index, bitSize, value);
+    }
+
+    BitBuffer putIntAt(int index, int bitSize, int value) {
         if (DEBUG){
             Bits.log(TAG, "setInt. bitSize:" + bitSize + " value:" + value + " " + Bits.intStr4Debug(value));
             Bits.log(TAG, "setInt.   index:" + index);

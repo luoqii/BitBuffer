@@ -6,6 +6,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.nio.BufferOverflowException;
+import java.nio.BufferUnderflowException;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
@@ -667,4 +669,32 @@ public class BitBufferTest {
         assertEquals(1, bitBuffer.capacity());
     }
 
+    @Test(expected = BufferUnderflowException.class)
+    public void put_BufferUnderflowException(){
+        BitBuffer bitBuffer;
+        bitBuffer = BitBuffer.allocate(8);
+        bitBuffer.getInt(9);
+    }
+
+    @Test(expected = BufferOverflowException.class)
+    public void put_BufferOverflowException(){
+        BitBuffer bitBuffer;
+        bitBuffer = BitBuffer.allocate(8);
+        bitBuffer.putInt(9, 1);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void put_IndexOutOfBoundsException(){
+        BitBuffer bitBuffer;
+        bitBuffer = BitBuffer.allocate(8);
+        bitBuffer.putInt(9,1, 1);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void set_IndexOutOfBoundsException(){
+        BitBuffer bitBuffer;
+
+        bitBuffer = BitBuffer.allocate(8);
+        bitBuffer.getInt(9, 1);
+    }
 }
