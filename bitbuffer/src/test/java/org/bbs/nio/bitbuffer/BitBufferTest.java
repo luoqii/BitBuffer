@@ -24,20 +24,21 @@ public class BitBufferTest {
 
     @Test
     public void getInt_32bit() {
-        final int RANGE = 0xFFFF;
+        int RANGE = 0xFFFF;
+        RANGE = Integer.MAX_VALUE * 2 - 999;
         BitBuffer bitBuffer;
         for (int i = Integer.MIN_VALUE ;i < Integer.MIN_VALUE + RANGE;i++){
             if (i == -2147483520){
                 i = i;
             }
-            System.err.println("int i:" + i + " " + Bits.intStr4Debug(i));
+//            System.err.println("int i:" + i + " " + Bits.intStr4Debug(i));
             bitBuffer = BitBuffer.allocate(4 * 8).order(ByteOrder.BIG_ENDIAN);
-            bitBuffer.setInt(32, i);
+            bitBuffer.putInt(32, i);
             bitBuffer.position(0);
             assertEquals(i + " BE", i, bitBuffer.getInt(32));
 
             bitBuffer = BitBuffer.allocate(4 * 8).order(ByteOrder.LITTLE_ENDIAN);
-            bitBuffer.setInt(32, i);
+            bitBuffer.putInt(32, i);
             bitBuffer.position(0);
             assertEquals(i + " BE", i, bitBuffer.getInt(32));
         }
@@ -50,12 +51,12 @@ public class BitBufferTest {
             int integer = new Random().nextInt();
             System.err.println("int integer:" + integer + " " + Bits.intStr4Debug(integer));
             bitBuffer = BitBuffer.allocate(4 * 8).order(ByteOrder.BIG_ENDIAN);
-            bitBuffer.setInt(32, integer);
+            bitBuffer.putInt(32, integer);
             bitBuffer.position(0);
             assertEquals(integer + " BE", integer, bitBuffer.getInt(32));
 
             bitBuffer = BitBuffer.allocate(4 * 8).order(ByteOrder.LITTLE_ENDIAN);
-            bitBuffer.setInt(32, integer);
+            bitBuffer.putInt(32, integer);
             bitBuffer.position(0);
             assertEquals(integer + " BE", integer, bitBuffer.getInt(32));
         }
@@ -71,13 +72,13 @@ public class BitBufferTest {
                 i = i;
             }
             bitBuffer = BitBuffer.allocate(2 * 8).order(ByteOrder.BIG_ENDIAN);
-            bitBuffer.setInt(16, i);
+            bitBuffer.putInt(16, i);
             bitBuffer.position(0);
             int expected = (i & 0xFF00) + (i & 0xFF);
             assertEquals(i + " BE", expected, bitBuffer.getInt(16));
 
             bitBuffer = BitBuffer.allocate(2 * 8).order(ByteOrder.LITTLE_ENDIAN);
-            bitBuffer.setInt(16, i);
+            bitBuffer.putInt(16, i);
             bitBuffer.position(0);
             assertEquals(i + " BE", expected, bitBuffer.getInt(16));
         }
@@ -88,24 +89,24 @@ public class BitBufferTest {
                 i = i;
             }
             bitBuffer = BitBuffer.allocate(2 * 8).order(ByteOrder.BIG_ENDIAN);
-            bitBuffer.setInt(16, i);
+            bitBuffer.putInt(16, i);
             bitBuffer.position(0);
             assertEquals(i + " BE", i, bitBuffer.getInt(16));
 
             bitBuffer = BitBuffer.allocate(2 * 8).order(ByteOrder.LITTLE_ENDIAN);
-            bitBuffer.setInt(16, i);
+            bitBuffer.putInt(16, i);
             bitBuffer.position(0);
             assertEquals(i + " BE", i, bitBuffer.getInt(16));
         }
 
         short i = Short.MAX_VALUE;
         bitBuffer = BitBuffer.allocate(2 * 8).order(ByteOrder.BIG_ENDIAN);
-        bitBuffer.setInt(16, i);
+        bitBuffer.putInt(16, i);
         bitBuffer.position(0);
         assertEquals(i + " BE", i, bitBuffer.getInt(16));
 
         bitBuffer = BitBuffer.allocate(2 * 8).order(ByteOrder.LITTLE_ENDIAN);
-        bitBuffer.setInt(16, i);
+        bitBuffer.putInt(16, i);
         bitBuffer.position(0);
         assertEquals(i + " BE", i, bitBuffer.getInt(16));
     }
@@ -116,13 +117,13 @@ public class BitBufferTest {
         for (byte i = Byte.MIN_VALUE;i < 0 ;i++){
             System.err.println("byte i:" + i + " " + Bits.intStr4Debug(i));
             bitBuffer = BitBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN);
-            bitBuffer.setInt(8, i);
+            bitBuffer.putInt(8, i);
             bitBuffer.position(0);
             int expected = (i & 0xFF);
             assertEquals(i + " BE", expected, bitBuffer.getInt(8));
 
             bitBuffer = BitBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
-            bitBuffer.setInt(8, i);
+            bitBuffer.putInt(8, i);
             bitBuffer.position(0);
             assertEquals(i + " BE", expected, bitBuffer.getInt(8));
         }
@@ -130,12 +131,12 @@ public class BitBufferTest {
         for (byte i = 0;i < Byte.MAX_VALUE ;i++){
             System.err.println("byte i:" + i + " " + Bits.intStr4Debug(i));
             bitBuffer = BitBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN);
-            bitBuffer.setInt(8, i);
+            bitBuffer.putInt(8, i);
             bitBuffer.position(0);
             assertEquals(i + " BE", i, bitBuffer.getInt(8));
 
             bitBuffer = BitBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
-            bitBuffer.setInt(8, i);
+            bitBuffer.putInt(8, i);
             bitBuffer.position(0);
             assertEquals(i + " BE", i, bitBuffer.getInt(8));
         }
@@ -143,19 +144,19 @@ public class BitBufferTest {
         int i = Byte.MAX_VALUE;
         System.err.println("byte i:" + i + " " + Bits.intStr4Debug(i));
         bitBuffer = BitBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN);
-        bitBuffer.setInt(8, i);
+        bitBuffer.putInt(8, i);
         bitBuffer.position(0);
         assertEquals(i + " BE", i, bitBuffer.getInt(8));
 
         bitBuffer = BitBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
-        bitBuffer.setInt(8, i);
+        bitBuffer.putInt(8, i);
         bitBuffer.position(0);
         assertEquals(i + " BE", i, bitBuffer.getInt(8));
     }
 
     @Test
-    public void setInt_getInt_randomly() {
-        final int TEST_COUNT = 10000;
+    public void putInt_getInt_randomly() {
+        final int TEST_COUNT = 0xFFFFFF;
         final int MAX_BYTE_SIZE = 128;
 
         List<int[]> testVector;
@@ -191,7 +192,7 @@ public class BitBufferTest {
 //            System.err.println("test BIG_ENDIAN");
             BitBuffer bitBuffer = BitBuffer.allocate(bitSize).order(ByteOrder.BIG_ENDIAN);
             for (int[] op: testVector){
-                bitBuffer.setInt(op[0], op[1]);
+                bitBuffer.putInt(op[0], op[1]);
             }
             bitBuffer.position(0);
             int step = 0;
@@ -205,7 +206,7 @@ public class BitBufferTest {
 //            System.err.println("test LITTLE_ENDIAN");
             bitBuffer = BitBuffer.allocate(bitSize).order(ByteOrder.LITTLE_ENDIAN);
             for (int[] op: testVector){
-                bitBuffer.setInt(op[0], op[1]);
+                bitBuffer.putInt(op[0], op[1]);
             }
             bitBuffer.position(0);
             step = 0;
@@ -220,7 +221,7 @@ public class BitBufferTest {
     }
 
     @Test
-    public void setInt_getInt_randomly_simple() {
+    public void putInt_getInt_randomly_simple() {
         final int TEST_COUNT = 10000;
 
         for (int i = 0 ; i < TEST_COUNT ; i++){
@@ -232,12 +233,12 @@ public class BitBufferTest {
             System.err.println("i:" + i + " randomValue:" + randomValue + " randomBitSize:" + randomBitSize);
 
             BitBuffer bitBuffer = BitBuffer.allocate(4 * 8).order(ByteOrder.BIG_ENDIAN);
-            bitBuffer.setInt(randomBitSize, randomValue);
+            bitBuffer.putInt(randomBitSize, randomValue);
             bitBuffer.position(0);
             assertEquals("bitSize:" + randomBitSize + " value:" + randomValue + " BE", randomValue, bitBuffer.getInt(randomBitSize));
 
             bitBuffer = BitBuffer.allocate(4 * 8).order(ByteOrder.LITTLE_ENDIAN);
-            bitBuffer.setInt(randomBitSize, randomValue);
+            bitBuffer.putInt(randomBitSize, randomValue);
             bitBuffer.position(0);
             assertEquals("bitSize:" + randomBitSize + " value:" + randomValue + " LE", randomValue, bitBuffer.getInt(randomBitSize));
         }
@@ -245,7 +246,7 @@ public class BitBufferTest {
     }
 
     @Test
-    public void setInt_getInt() {
+    public void putInt_getInt() {
 
         List<SetIntTestVector> vectors = new ArrayList<>();
 
@@ -370,9 +371,9 @@ public class BitBufferTest {
                 int bitSize = operation[i * OPS_PER_TEST];
                 int value = operation[i * OPS_PER_TEST + 1];
 
-                bitBuffer.setInt(bitSize, value);
+                bitBuffer.putInt(bitSize, value);
             }
-            assertArrayEquals(label + " setInt BE", expectedResultBE, bitBuffer.array());
+            assertArrayEquals(label + " putInt BE", expectedResultBE, bitBuffer.array());
 
             bitBuffer = BitBuffer.wrap(expectedResultBE).order(ByteOrder.BIG_ENDIAN);
             for (int i = 0 ; i < operation.length / OPS_PER_TEST ; i++){
@@ -388,9 +389,9 @@ public class BitBufferTest {
                 int bitSize = operation[i * OPS_PER_TEST];
                 int value = operation[i * OPS_PER_TEST + 1];
 
-                bitBuffer.setInt(bitSize, value);
+                bitBuffer.putInt(bitSize, value);
             }
-            assertArrayEquals(label + " setInt LE", expectedResultLE, bitBuffer.array());
+            assertArrayEquals(label + " putInt LE", expectedResultLE, bitBuffer.array());
 
             bitBuffer = BitBuffer.wrap(expectedResultLE).order(ByteOrder.LITTLE_ENDIAN);
             for (int i = 0 ; i < operation.length / OPS_PER_TEST ; i++){
@@ -404,225 +405,266 @@ public class BitBufferTest {
     }
 
     @Test
-    public void setInt_bigendian_2byte() {
+    public void putInt_bigendian_2byte() {
         BitBuffer bitBuffer = null;
 
         bitBuffer = BitBuffer.allocate(16).order(ByteOrder.BIG_ENDIAN);
-        bitBuffer.setInt(6, 0b1);
-        bitBuffer.setInt(10, 0b1);
+        bitBuffer.putInt(6, 0b1);
+        bitBuffer.putInt(10, 0b1);
         assertArrayEquals(new byte[]{0b0000_0100, 0b0000_0001}, bitBuffer.array());
 
     }
 
     @Test
-    public void setInt_bigendian_1byte_1bit() {
+    public void putInt_bigendian_1byte_1bit() {
         BitBuffer bitBuffer = null;
 
         bitBuffer = BitBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN);
-        bitBuffer.setInt(1, 0b1);
+        bitBuffer.putInt(1, 0b1);
         assertEquals(0x80, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(1, 0b1);
+        bitBuffer.putInt(1, 0b1);
         assertEquals(0xC0, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(1, 0b1);
+        bitBuffer.putInt(1, 0b1);
         assertEquals(0xE0, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(1, 0b1);
+        bitBuffer.putInt(1, 0b1);
         assertEquals(0xF0, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(1, 0b1);
+        bitBuffer.putInt(1, 0b1);
         assertEquals(0xF8, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(1, 0b1);
+        bitBuffer.putInt(1, 0b1);
         assertEquals(0xFC, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(1, 0b1);
+        bitBuffer.putInt(1, 0b1);
         assertEquals(0xFE, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(1, 0b1);
+        bitBuffer.putInt(1, 0b1);
         assertEquals(0xFF, bitBuffer.array()[0] & 0xFF);
 
         bitBuffer = BitBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN);
-        bitBuffer.setInt(1, 0b0);
+        bitBuffer.putInt(1, 0b0);
         assertEquals(0x00, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(1, 0b1);
+        bitBuffer.putInt(1, 0b1);
         assertEquals(0x40, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(1, 0b0);
+        bitBuffer.putInt(1, 0b0);
         assertEquals(0x40, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(1, 0b1);
+        bitBuffer.putInt(1, 0b1);
         assertEquals(0x50, bitBuffer.array()[0] & 0xFF);
 
-        bitBuffer.setInt(1, 0b1);
+        bitBuffer.putInt(1, 0b1);
         assertEquals(0x58, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(1, 0b0);
+        bitBuffer.putInt(1, 0b0);
         assertEquals(0x58, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(1, 0b1);
+        bitBuffer.putInt(1, 0b1);
         assertEquals(0x5a, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(1, 0b0);
+        bitBuffer.putInt(1, 0b0);
         assertEquals(0x5a, bitBuffer.array()[0] & 0xFF);
 
         bitBuffer = BitBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN).position(4);
-        bitBuffer.setInt(1, 0b1);
+        bitBuffer.putInt(1, 0b1);
         assertEquals(0x08, bitBuffer.array()[0] & 0xFF);
     }
 
     @Test
-    public void setInt_bigendian_1byte_multibit() {
+    public void putInt_bigendian_1byte_multibit() {
         BitBuffer bitBuffer = null;
 
         // mesh profile # 3.1.1
         bitBuffer = BitBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN);
-        bitBuffer.setInt(4, 6);
+        bitBuffer.putInt(4, 6);
         assertEquals(0x60, bitBuffer.array()[0] & 0xFF);
 
         bitBuffer = BitBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN);
-        bitBuffer.setInt(2, 0b01);
+        bitBuffer.putInt(2, 0b01);
         assertEquals(0x40, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(2, 0b01);
+        bitBuffer.putInt(2, 0b01);
         assertEquals(0x50, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(2, 0b10);
+        bitBuffer.putInt(2, 0b10);
         assertEquals(0x58, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(2, 0b10);
+        bitBuffer.putInt(2, 0b10);
         assertEquals(0x5a, bitBuffer.array()[0] & 0xFF);
 
 
         bitBuffer = BitBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN);
-        bitBuffer.setInt(3, 0b001);
+        bitBuffer.putInt(3, 0b001);
         assertEquals(0x20, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(3, 0b001);
+        bitBuffer.putInt(3, 0b001);
         assertEquals(0x24, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(2, 0b01);
+        bitBuffer.putInt(2, 0b01);
         assertEquals(0x25, bitBuffer.array()[0] & 0xFF);
 
 
         bitBuffer = BitBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN);
-        bitBuffer.setInt(4, 0b0001);
+        bitBuffer.putInt(4, 0b0001);
         assertEquals(0x10, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(4, 0b0001);
+        bitBuffer.putInt(4, 0b0001);
         assertEquals(0x11, bitBuffer.array()[0] & 0xFF);
 
         bitBuffer = BitBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN);
-        bitBuffer.setInt(5, 0b00001);
+        bitBuffer.putInt(5, 0b00001);
         assertEquals(0x08, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(3, 0b001);
+        bitBuffer.putInt(3, 0b001);
         assertEquals(0x09, bitBuffer.array()[0] & 0xFF);
         bitBuffer = BitBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN);
-        bitBuffer.setInt(3, 0b001);
+        bitBuffer.putInt(3, 0b001);
         assertEquals(0x20, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(5, 0b00001);
+        bitBuffer.putInt(5, 0b00001);
         assertEquals(0x21, bitBuffer.array()[0] & 0xFF);
 
 
         bitBuffer = BitBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN);
-        bitBuffer.setInt(6, 0b1);
+        bitBuffer.putInt(6, 0b1);
         assertEquals(0x04, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(2, 0b1);
+        bitBuffer.putInt(2, 0b1);
         assertEquals(0x05, bitBuffer.array()[0] & 0xFF);
         bitBuffer = BitBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN);
-        bitBuffer.setInt(2, 0b1);
+        bitBuffer.putInt(2, 0b1);
         assertEquals(0x40, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(6, 0b1);
+        bitBuffer.putInt(6, 0b1);
         assertEquals(0x41, bitBuffer.array()[0] & 0xFF);
     }
 
     @Test
-    public void setInt_littleendian_1byte_1bit() {
+    public void putInt_littleendian_1byte_1bit() {
         BitBuffer bitBuffer = null;
 
         // mesh profile # 3.1.1
         bitBuffer = BitBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
-        bitBuffer.setInt(4, 6);
+        bitBuffer.putInt(4, 6);
         assertEquals(0x6, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(4, 7);
+        bitBuffer.putInt(4, 7);
         assertEquals(0x76, bitBuffer.array()[0] & 0xFF);
 
         bitBuffer = BitBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
-        bitBuffer.setInt(1, 0b1);
+        bitBuffer.putInt(1, 0b1);
         assertEquals(0b1, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(1, 0b1);
+        bitBuffer.putInt(1, 0b1);
         assertEquals(0b11, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(1, 0b1);
+        bitBuffer.putInt(1, 0b1);
         assertEquals(0b111, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(1, 0b1);
+        bitBuffer.putInt(1, 0b1);
         assertEquals(0b1111, bitBuffer.array()[0] & 0xFF);
 
-        bitBuffer.setInt(1, 0b1);
+        bitBuffer.putInt(1, 0b1);
         assertEquals(0b1_1111, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(1, 0b1);
+        bitBuffer.putInt(1, 0b1);
         assertEquals(0b11_1111, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(1, 0b1);
+        bitBuffer.putInt(1, 0b1);
         assertEquals(0b111_1111, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(1, 0b1);
+        bitBuffer.putInt(1, 0b1);
         assertEquals(0b1111_1111, bitBuffer.array()[0] & 0xFF);
 
         bitBuffer = BitBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
-        bitBuffer.setInt(1, 0b0);
+        bitBuffer.putInt(1, 0b0);
         assertEquals(0b0, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(1, 0b1);
+        bitBuffer.putInt(1, 0b1);
         assertEquals(0b10, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(1, 0b0);
+        bitBuffer.putInt(1, 0b0);
         assertEquals(0b010, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(1, 0b1);
+        bitBuffer.putInt(1, 0b1);
         assertEquals(0b1010, bitBuffer.array()[0] & 0xFF);
 
-        bitBuffer.setInt(1, 0b1);
+        bitBuffer.putInt(1, 0b1);
         assertEquals(0b1_1010, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(1, 0b0);
+        bitBuffer.putInt(1, 0b0);
         assertEquals(0b01_1010, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(1, 0b1);
+        bitBuffer.putInt(1, 0b1);
         assertEquals(0b101_1010, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(1, 0b0);
+        bitBuffer.putInt(1, 0b0);
         assertEquals(0b101_1010, bitBuffer.array()[0] & 0xFF);
 
     }
 
     @Test
-    public void setInt_littleendian_1byte_multibit() {
+    public void putInt_littleendian_1byte_multibit() {
         BitBuffer bitBuffer = null;
 
         bitBuffer = BitBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
-        bitBuffer.setInt(2, 0b01);
+        bitBuffer.putInt(2, 0b01);
         assertEquals(0b01, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(2, 0b01);
+        bitBuffer.putInt(2, 0b01);
         assertEquals(0b0101, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(2, 0b10);
+        bitBuffer.putInt(2, 0b10);
         assertEquals(0b10_0101, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(2, 0b10);
+        bitBuffer.putInt(2, 0b10);
         assertEquals(0b1010_0101, bitBuffer.array()[0] & 0xFF);
 
 
         bitBuffer = BitBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
-        bitBuffer.setInt(3, 0b001);
+        bitBuffer.putInt(3, 0b001);
         assertEquals(0b001, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(3, 0b001);
+        bitBuffer.putInt(3, 0b001);
         assertEquals(0b00_1001, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(2, 0b01);
+        bitBuffer.putInt(2, 0b01);
         assertEquals(0b0100_1001, bitBuffer.array()[0] & 0xFF);
 
 
         bitBuffer = BitBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
-        bitBuffer.setInt(4, 0b0001);
+        bitBuffer.putInt(4, 0b0001);
         assertEquals(0b0001, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(4, 0b0001);
+        bitBuffer.putInt(4, 0b0001);
         assertEquals(0b0001_0001, bitBuffer.array()[0] & 0xFF);
 
         bitBuffer = BitBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
-        bitBuffer.setInt(5, 0b00001);
+        bitBuffer.putInt(5, 0b00001);
         assertEquals(0b0_0001, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(3, 0b001);
+        bitBuffer.putInt(3, 0b001);
         assertEquals(0b0010_0001, bitBuffer.array()[0] & 0xFF);
         bitBuffer = BitBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
-        bitBuffer.setInt(3, 0b001);
+        bitBuffer.putInt(3, 0b001);
         assertEquals(0b001, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(5, 0b00001);
+        bitBuffer.putInt(5, 0b00001);
         assertEquals(0b0000_1001, bitBuffer.array()[0] & 0xFF);
 
 
         bitBuffer = BitBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
-        bitBuffer.setInt(6, 0b00_0001);
+        bitBuffer.putInt(6, 0b00_0001);
         assertEquals(0b00_0001, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(2, 0b01);
+        bitBuffer.putInt(2, 0b01);
         assertEquals(0b0100_0001, bitBuffer.array()[0] & 0xFF);
         bitBuffer = BitBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
-        bitBuffer.setInt(2, 0b01);
+        bitBuffer.putInt(2, 0b01);
         assertEquals(0b01, bitBuffer.array()[0] & 0xFF);
-        bitBuffer.setInt(6, 0b00_0001);
+        bitBuffer.putInt(6, 0b00_0001);
         assertEquals(0b0000_0101, bitBuffer.array()[0] & 0xFF);
     }
 
+    @Test
+    public void position(){
+        BitBuffer bitBuffer;
+
+        bitBuffer = BitBuffer.allocate(8);
+        assertEquals(0, bitBuffer.position());
+        bitBuffer.getInt(3);
+        assertEquals(3, bitBuffer.position());
+        bitBuffer.getInt(2);
+        assertEquals(5, bitBuffer.position());
+
+        bitBuffer = BitBuffer.allocate(1);
+        assertEquals(0, bitBuffer.position());
+        bitBuffer.getInt(3);
+        assertEquals(3, bitBuffer.position());
+        bitBuffer.getInt(2);
+        assertEquals(5, bitBuffer.position());
+    }
+
+    @Test
+    public void limit_capacity(){
+        BitBuffer bitBuffer;
+
+        bitBuffer = BitBuffer.allocate(8);
+        assertEquals(8, bitBuffer.limit());
+        assertEquals(8, bitBuffer.capacity());
+        bitBuffer.getInt(3);
+        assertEquals(8, bitBuffer.limit());
+        assertEquals(8, bitBuffer.capacity());
+        bitBuffer.getInt(2);
+        assertEquals(8, bitBuffer.limit());
+        assertEquals(8, bitBuffer.capacity());
+
+
+        bitBuffer = BitBuffer.allocate(1);
+        assertEquals(1, bitBuffer.limit());
+        assertEquals(1, bitBuffer.capacity());
+        bitBuffer.getInt(1);
+        assertEquals(1, bitBuffer.limit());
+        assertEquals(1, bitBuffer.capacity());
+    }
 
 }

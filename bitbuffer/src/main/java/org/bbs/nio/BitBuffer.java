@@ -385,6 +385,8 @@ abstract public class BitBuffer {
     public abstract byte[] array();
 
 
+    // interface
+
     public static BitBuffer allocate(int bitSize){
         if (bitSize < 0)
             throw new IllegalArgumentException();
@@ -395,7 +397,35 @@ abstract public class BitBuffer {
         return new HeapBitBuffer(array);
     }
 
+    /**
+     * Relative get method for reading a int value.
+     * @param bitSize
+     * @return
+     */
     public abstract int getInt(int bitSize);
 
-    public abstract BitBuffer setInt(int bitSize, int value);
+    /**
+     * Absolute get method for reading a int value.
+     * @param index
+     * @param bitSize
+     * @return
+     */
+    public abstract int getInt(int index, int bitSize);
+
+    /**
+     * Relative put method for writing an int value
+     * @param bitSize
+     * @param value
+     * @return
+     */
+    public abstract BitBuffer putInt(int bitSize, int value);
+
+    /**
+     * Absolute put method for writing an int value
+     * @param index
+     * @param bitSize
+     * @param value
+     * @return
+     */
+    public abstract BitBuffer putInt(int index, int bitSize, int value);
 }

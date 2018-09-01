@@ -1,9 +1,6 @@
 package org.bbs.nio;
 
 
-import org.bbs.nio.BitBuffer;
-import org.bbs.nio.Bits;
-
 import java.nio.ByteOrder;
 
 public class HeapBitBuffer extends BitBuffer {
@@ -36,26 +33,33 @@ public class HeapBitBuffer extends BitBuffer {
     }
 
     @Override
-    public int getInt(final int bitSize) {
+    public int getInt(int bitSize){
+        int value = getInt(position, bitSize);
+        position += bitSize;
+        return value;
+    }
+
+    @Override
+    public int getInt(int index, int bitSize) {
         if (DEBUG){
-            Bits.log(TAG, "getInt bitSize:" + bitSize + " position:" + position);
+            Bits.log(TAG, "getInt index:" + index + " bitSize:" + bitSize + " position:" + position);
         }
         checkBitSize(32, bitSize);
 
         int value = 0;
 
         ByteOrder order = order();
-        int stopBitPosition = position + bitSize;
-        int bytePosition4Read = position / 8;
-        int bitPositionInCurrentByte = position % 8;
+        int stopBitPosition = index + bitSize;
+        int bytePosition4Read = index / 8;
+        int bitPositionInCurrentByte = index % 8;
         int startBit;
         int stopBit;
         int shift;
         int readBitSize;
         int cumulativeReadBitSize = 0;
 
-        for (int i = position ; i < stopBitPosition;){
-            int nextBytePosition = (position + 8) / 8 * 8;
+        for (int i = index ; i < stopBitPosition;){
+            int nextBytePosition = (index + 8) / 8 * 8;
             int bitValue;
             if (stopBitPosition > nextBytePosition) { // 跨Byte
                 readBitSize = 8 - bitPositionInCurrentByte;
@@ -88,7 +92,7 @@ public class HeapBitBuffer extends BitBuffer {
                 }
 
                 bitPositionInCurrentByte = 0;
-                position += readBitSize;
+                index += readBitSize;
                 bytePosition4Read++;
                 i += readBitSize;
             } else {
@@ -118,7 +122,7 @@ public class HeapBitBuffer extends BitBuffer {
                     Bits.log(TAG, "getInt  after add.    value:" + value + " " + Bits.intStr4Debug(value));
                 }
 
-                position += readBitSize;
+                index += readBitSize;
                 i += readBitSize;
             }
         }
@@ -129,18 +133,26 @@ public class HeapBitBuffer extends BitBuffer {
         return value;
     }
 
+
     @Override
-    public BitBuffer setInt(int bitSize, int value) {
+    public BitBuffer putInt(int bitSize, int value) {
+        putInt(position, bitSize, value);
+        position += bitSize;
+        return this;
+    }
+
+    @Override
+    public BitBuffer putInt(int index, int bitSize, int value) {
         if (DEBUG){
             Bits.log(TAG, "setInt. bitSize:" + bitSize + " value:" + value + " " + Bits.intStr4Debug(value));
-            Bits.log(TAG, "setInt. position:" + position);
+            Bits.log(TAG, "setInt.   index:" + index);
         }
         checkBitSize(32, bitSize);
 
         ByteOrder order = order();
-        int currentBytePosition = position / 8; // in byte
-        int stopBitPosition = position + bitSize;
-        int bitPositionInCurrentByte = position % 8; // begin 0
+        int currentBytePosition = index / 8; // in byte
+        int stopBitPosition = index + bitSize;
+        int bitPositionInCurrentByte = index % 8; // begin 0
         int startBit4Write = 0;
         int stopBit4Write = 0;
         int startBit4Read = order == ByteOrder.LITTLE_ENDIAN ? 0 : 32 - bitSize;
@@ -148,8 +160,8 @@ public class HeapBitBuffer extends BitBuffer {
         int currentValue = 0;
 
         //startBit4Read = 0;
-        for (; position < stopBitPosition;){
-            int nextBytePosition = (position + 8) / 8 * 8;
+        for (; index < stopBitPosition;){
+            int nextBytePosition = (index + 8) / 8 * 8;
 
             startBit4Write = bitPositionInCurrentByte;
             if (stopBitPosition > nextBytePosition) {// 跨byte
@@ -167,7 +179,7 @@ public class HeapBitBuffer extends BitBuffer {
 
                 startBit4Read += bit2Write;
                 currentBytePosition++;
-                position = nextBytePosition;
+                index = nextBytePosition;
                 bitPositionInCurrentByte = 0;
                 bitSize -= bit2Write;
             } else { // 单个byte内
@@ -180,7 +192,7 @@ public class HeapBitBuffer extends BitBuffer {
                 }
                 Bits.set(mData, currentBytePosition, currentValue, startBit4Write, stopBit4Write, order);
 
-                position = stopBitPosition;
+                index = stopBitPosition;
             }
         }
 
