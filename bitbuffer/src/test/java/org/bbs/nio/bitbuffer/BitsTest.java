@@ -19,6 +19,63 @@ import static org.junit.Assert.assertEquals;
 public class BitsTest {
 
     @Test
+    public void set_8bit(){
+        for (byte i = Byte.MIN_VALUE ; i < Byte.MAX_VALUE; i++){
+            assertEquals(i+ " BE", i, Bits.set((byte)0, i, 0, 8, ByteOrder.BIG_ENDIAN));
+            assertEquals(i+ " LE", i, Bits.set((byte)0, i, 0, 8, ByteOrder.LITTLE_ENDIAN));
+        }
+
+        byte i = Byte.MAX_VALUE;
+        assertEquals(i+ " BE", i, Bits.set((byte)0, i, 0, 8, ByteOrder.BIG_ENDIAN));
+        assertEquals(i+ " LE", i, Bits.set((byte)0, i, 0, 8, ByteOrder.LITTLE_ENDIAN));
+    }
+
+    @Test
+    public void getByteBits(){
+        for (byte i = Byte.MIN_VALUE ; i < Byte.MAX_VALUE; i++){
+            assertEquals(i+ " BE", i, Bits.getByteBits(i, 0, 8, ByteOrder.BIG_ENDIAN));
+            assertEquals(i+ " LE", i, Bits.getByteBits(i, 0, 8, ByteOrder.LITTLE_ENDIAN));
+        }
+
+        byte i = Byte.MAX_VALUE;
+        assertEquals(i+ " BE", i, Bits.getByteBits(i, 0, 8, ByteOrder.BIG_ENDIAN));
+        assertEquals(i+ " LE", i, Bits.getByteBits(i, 0, 8, ByteOrder.LITTLE_ENDIAN));
+    }
+
+    @Test
+    public void getShortBits(){
+        for (short i = Short.MIN_VALUE ; i < Short.MAX_VALUE ; i++) {
+            assertEquals(i+ " BE", i, Bits.getShortBits(i, 0, 16, ByteOrder.BIG_ENDIAN));
+            assertEquals(i+ " LE", i, Bits.getShortBits(i, 0, 16, ByteOrder.LITTLE_ENDIAN));
+        }
+
+        short i  = Short.MAX_VALUE;
+        assertEquals(i+ " BE", i, Bits.getShortBits(i, 0, 16, ByteOrder.BIG_ENDIAN));
+        assertEquals(i+ " LE", i, Bits.getShortBits(i, 0, 16, ByteOrder.LITTLE_ENDIAN));
+    }
+
+    @Test
+    public void getIntBits() {
+        final int RANGE = 100000;
+        int stopPositon = Integer.MIN_VALUE + RANGE;
+        for (int i = Integer.MIN_VALUE; i < stopPositon; i++) {
+            assertEquals(i + " BE", i, Bits.getIntBits(i, 0, 32, ByteOrder.BIG_ENDIAN));
+            assertEquals(i + " LE", i, Bits.getIntBits(i, 0, 32, ByteOrder.LITTLE_ENDIAN));
+        }
+
+        stopPositon = Integer.MAX_VALUE - RANGE;
+        for (int i = Integer.MAX_VALUE; i >= stopPositon; i--) {
+            assertEquals(i + " BE", i, Bits.getIntBits(i, 0, 32, ByteOrder.BIG_ENDIAN));
+            assertEquals(i + " LE", i, Bits.getIntBits(i, 0, 32, ByteOrder.LITTLE_ENDIAN));
+        }
+
+        for (int i = Short.MIN_VALUE; i <= Short.MAX_VALUE; i++) {
+            assertEquals(i + " BE", i, Bits.getIntBits(i, 0, 32, ByteOrder.BIG_ENDIAN));
+            assertEquals(i + " LE", i, Bits.getIntBits(i, 0, 32, ByteOrder.LITTLE_ENDIAN));
+        }
+    }
+
+    @Test
     public void mask() {
 
         final int COUNT_PER_TC = 6;
@@ -57,16 +114,24 @@ public class BitsTest {
                 "30th",   4,  29,  30, 0x4, 0x20000000,
                 "31th",   4,  30,  31, 0x2, 0x40000000,
                 "32th",   4,  31,  32, 0x1, 0x80000000,
+                "33th",   4,  0,  32, 0xFFFFFFFF, 0xFFFFFFFF,
+                "34th",   4,  0,  8, 0xFF000000, 0x000000FF,
+                "35th",   4,  8,  16, 0xFF0000, 0x0000FF00,
 
                 // bytemask
-                "33th",   1, 0,  1, 0x80, 0x1,
-                "34th",   1, 1,  2, 0x40, 0x2,
-                "35th",   1, 2,  3, 0x20, 0x4,
-                "36th",   1,  3,  4, 0x10, 0x8,
-                "37th",   1,  4,  5, 0x8, 0x10,
-                "38th",   1,  5,  6, 0x4, 0x20,
-                "39th",   1,  6,  7, 0x2, 0x40,
-                "40th",   1,  7,  8, 0x1, 0x80,
+                "133th",   1, 0,  1, 0x80, 0x1,
+                "134th",   1, 1,  2, 0x40, 0x2,
+                "135th",   1, 2,  3, 0x20, 0x4,
+                "136th",   1,  3,  4, 0x10, 0x8,
+                "137th",   1,  4,  5, 0x8, 0x10,
+                "138th",   1,  5,  6, 0x4, 0x20,
+                "139th",   1,  6,  7, 0x2, 0x40,
+                "140th",   1,  7,  8, 0x1, 0x80,
+
+                "141th",  1,  0,  8, 0xFF, 0xFF,
+
+
+                "141th",  1,  0,  8, 0xFF, 0xFF,
 
         };
         for (int i = 0; i < testVector.length / COUNT_PER_TC ; i++ ){
@@ -83,7 +148,6 @@ public class BitsTest {
             expect = (int) testVector[COUNT_PER_TC * i + 5];
             actual = Bits.mask(byteSize, startBit, stopBit, ByteOrder.LITTLE_ENDIAN);
             assertEquals(tcLabel + " littleEndian", Integer.toBinaryString(expect), Integer.toBinaryString(actual));
-
         }
     }
 
@@ -292,10 +356,10 @@ public class BitsTest {
         actual = Bits.getByteBits(bytes[0], 0, 2, ByteOrder.BIG_ENDIAN);
         assertEquals(Integer.toBinaryString(expected), Integer.toBinaryString(actual));
 
-        expected = -127 & 0xFF;
+        expected = -127;
         bytes = new byte[]{-127};
         actual = Bits.getByteBits(bytes[0], 0, 8, ByteOrder.BIG_ENDIAN);
-        assertEquals(Integer.toBinaryString(expected), Integer.toBinaryString(actual));
+        assertEquals((expected), (actual));
     }
 
     @Test

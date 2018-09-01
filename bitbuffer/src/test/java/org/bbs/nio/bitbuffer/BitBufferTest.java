@@ -21,18 +21,151 @@ import static org.junit.Assert.assertEquals;
  */
 @RunWith(JUnit4.class)
 public class BitBufferTest {
+
+    @Test
+    public void getInt_32bit() {
+        final int RANGE = 0xFFFF;
+        BitBuffer bitBuffer;
+        for (int i = Integer.MIN_VALUE ;i < Integer.MIN_VALUE + RANGE;i++){
+            if (i == -2147483520){
+                i = i;
+            }
+            System.err.println("int i:" + i + " " + Bits.intStr4Debug(i));
+            bitBuffer = BitBuffer.allocate(4 * 8).order(ByteOrder.BIG_ENDIAN);
+            bitBuffer.setInt(32, i);
+            bitBuffer.position(0);
+            assertEquals(i + " BE", i, bitBuffer.getInt(32));
+
+            bitBuffer = BitBuffer.allocate(4 * 8).order(ByteOrder.LITTLE_ENDIAN);
+            bitBuffer.setInt(32, i);
+            bitBuffer.position(0);
+            assertEquals(i + " BE", i, bitBuffer.getInt(32));
+        }
+    }
+
+    @Test
+    public void getInt_32bit_randomly() {
+        BitBuffer bitBuffer;
+        for (int i = 0 ;i < 10000 ;i++){
+            int integer = new Random().nextInt();
+            System.err.println("int integer:" + integer + " " + Bits.intStr4Debug(integer));
+            bitBuffer = BitBuffer.allocate(4 * 8).order(ByteOrder.BIG_ENDIAN);
+            bitBuffer.setInt(32, integer);
+            bitBuffer.position(0);
+            assertEquals(integer + " BE", integer, bitBuffer.getInt(32));
+
+            bitBuffer = BitBuffer.allocate(4 * 8).order(ByteOrder.LITTLE_ENDIAN);
+            bitBuffer.setInt(32, integer);
+            bitBuffer.position(0);
+            assertEquals(integer + " BE", integer, bitBuffer.getInt(32));
+        }
+    }
+
+
+    @Test
+    public void getInt_16bit() {
+        BitBuffer bitBuffer;
+        for (short i = Short.MIN_VALUE ;i < 0 ;i++){
+            System.err.println("short i:" + i + " " + Bits.intStr4Debug(i));
+            if (i == -32640){
+                i = i;
+            }
+            bitBuffer = BitBuffer.allocate(2 * 8).order(ByteOrder.BIG_ENDIAN);
+            bitBuffer.setInt(16, i);
+            bitBuffer.position(0);
+            int expected = (i & 0xFF00) + (i & 0xFF);
+            assertEquals(i + " BE", expected, bitBuffer.getInt(16));
+
+            bitBuffer = BitBuffer.allocate(2 * 8).order(ByteOrder.LITTLE_ENDIAN);
+            bitBuffer.setInt(16, i);
+            bitBuffer.position(0);
+            assertEquals(i + " BE", expected, bitBuffer.getInt(16));
+        }
+
+        for (short i = 0 ;i < Short.MAX_VALUE ;i++){
+            System.err.println("short i:" + i + " " + Bits.intStr4Debug(i));
+            if (i == -32640){
+                i = i;
+            }
+            bitBuffer = BitBuffer.allocate(2 * 8).order(ByteOrder.BIG_ENDIAN);
+            bitBuffer.setInt(16, i);
+            bitBuffer.position(0);
+            assertEquals(i + " BE", i, bitBuffer.getInt(16));
+
+            bitBuffer = BitBuffer.allocate(2 * 8).order(ByteOrder.LITTLE_ENDIAN);
+            bitBuffer.setInt(16, i);
+            bitBuffer.position(0);
+            assertEquals(i + " BE", i, bitBuffer.getInt(16));
+        }
+
+        short i = Short.MAX_VALUE;
+        bitBuffer = BitBuffer.allocate(2 * 8).order(ByteOrder.BIG_ENDIAN);
+        bitBuffer.setInt(16, i);
+        bitBuffer.position(0);
+        assertEquals(i + " BE", i, bitBuffer.getInt(16));
+
+        bitBuffer = BitBuffer.allocate(2 * 8).order(ByteOrder.LITTLE_ENDIAN);
+        bitBuffer.setInt(16, i);
+        bitBuffer.position(0);
+        assertEquals(i + " BE", i, bitBuffer.getInt(16));
+    }
+
+    @Test
+    public void getInt_8bit() {
+        BitBuffer bitBuffer;
+        for (byte i = Byte.MIN_VALUE;i < 0 ;i++){
+            System.err.println("byte i:" + i + " " + Bits.intStr4Debug(i));
+            bitBuffer = BitBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN);
+            bitBuffer.setInt(8, i);
+            bitBuffer.position(0);
+            int expected = (i & 0xFF);
+            assertEquals(i + " BE", expected, bitBuffer.getInt(8));
+
+            bitBuffer = BitBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
+            bitBuffer.setInt(8, i);
+            bitBuffer.position(0);
+            assertEquals(i + " BE", expected, bitBuffer.getInt(8));
+        }
+
+        for (byte i = 0;i < Byte.MAX_VALUE ;i++){
+            System.err.println("byte i:" + i + " " + Bits.intStr4Debug(i));
+            bitBuffer = BitBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN);
+            bitBuffer.setInt(8, i);
+            bitBuffer.position(0);
+            assertEquals(i + " BE", i, bitBuffer.getInt(8));
+
+            bitBuffer = BitBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
+            bitBuffer.setInt(8, i);
+            bitBuffer.position(0);
+            assertEquals(i + " BE", i, bitBuffer.getInt(8));
+        }
+
+        int i = Byte.MAX_VALUE;
+        System.err.println("byte i:" + i + " " + Bits.intStr4Debug(i));
+        bitBuffer = BitBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN);
+        bitBuffer.setInt(8, i);
+        bitBuffer.position(0);
+        assertEquals(i + " BE", i, bitBuffer.getInt(8));
+
+        bitBuffer = BitBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
+        bitBuffer.setInt(8, i);
+        bitBuffer.position(0);
+        assertEquals(i + " BE", i, bitBuffer.getInt(8));
+    }
+
     @Test
     public void setInt_getInt_randomly() {
-        final int TEST_COUNT = 100000;
-        final int MAX_BIT_SIZE = 32;
+        final int TEST_COUNT = 10000;
+        final int MAX_BYTE_SIZE = 128;
 
         List<int[]> testVector;
         for (int i = 0 ; i < TEST_COUNT ; i++){
             testVector = new ArrayList<>();
 
-            int remainingBitSize = MAX_BIT_SIZE;
+            int bitSize = (new Random().nextInt(MAX_BYTE_SIZE) + 1) * 8;
+            int remainingBitSize = bitSize;
             while (remainingBitSize > 0) {
-                int randomBitSize = new Random().nextInt(remainingBitSize) + 1;
+                int randomBitSize = new Random().nextInt(Math.min(remainingBitSize, 32)) + 1;
                 int randomValue = 0;
 
                 String binaryStr = "";
@@ -47,45 +180,48 @@ public class BitBufferTest {
                 remainingBitSize -= randomBitSize;
             }
 
-            System.err.println("test vector:");
+//            System.err.println("test vector. bitSize:" + bitSize);
+            String testVectorStr = "";
             for (int[] op: testVector){
                 int value = op[1];
                 System.err.println("bitSize:" + op[0] + "\tvalue:" + value + " " + Bits.intStr4Debug(value));
+                testVectorStr += "\nbitSize:" + op[0] + " value:" + value;
             }
 
-
-            System.err.println("test BIG_ENDIAN");
-            BitBuffer bitBuffer = BitBuffer.allocate(MAX_BIT_SIZE).order(ByteOrder.BIG_ENDIAN);
+//            System.err.println("test BIG_ENDIAN");
+            BitBuffer bitBuffer = BitBuffer.allocate(bitSize).order(ByteOrder.BIG_ENDIAN);
             for (int[] op: testVector){
                 bitBuffer.setInt(op[0], op[1]);
             }
             bitBuffer.position(0);
+            int step = 0;
             for (int[] op: testVector){
+                step++;
                 int expected = op[1];
                 int actual = bitBuffer.getInt(op[0]);
-                assertEquals(expected, actual);
+                assertEquals(testVectorStr + "\n step:" + step + " getInt BE", expected, actual);
             }
 
-            System.err.println("test LITTLE_ENDIAN");
-            bitBuffer = BitBuffer.allocate(MAX_BIT_SIZE).order(ByteOrder.LITTLE_ENDIAN);
+//            System.err.println("test LITTLE_ENDIAN");
+            bitBuffer = BitBuffer.allocate(bitSize).order(ByteOrder.LITTLE_ENDIAN);
             for (int[] op: testVector){
                 bitBuffer.setInt(op[0], op[1]);
             }
             bitBuffer.position(0);
+            step = 0;
             for (int[] op: testVector){
+                step++;
                 int expected = op[1];
                 int actual = bitBuffer.getInt(op[0]);
-                assertEquals(expected, actual);
+                assertEquals(testVectorStr + "\n step:" + step + " getInt LE", expected, actual);
             }
-
-
         }
 
     }
 
     @Test
     public void setInt_getInt_randomly_simple() {
-        final int TEST_COUNT = 100000;
+        final int TEST_COUNT = 10000;
 
         for (int i = 0 ; i < TEST_COUNT ; i++){
             int randomValue = new Random().nextInt();

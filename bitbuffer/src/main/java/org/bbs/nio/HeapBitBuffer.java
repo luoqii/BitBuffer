@@ -7,6 +7,9 @@ import org.bbs.nio.Bits;
 import java.nio.ByteOrder;
 
 public class HeapBitBuffer extends BitBuffer {
+    private static final boolean DEBUG = false;
+    private static final String TAG = HeapBitBuffer.class.getSimpleName();
+
     private final byte[] mData;
 
     public HeapBitBuffer(int bitSize) {
@@ -34,6 +37,9 @@ public class HeapBitBuffer extends BitBuffer {
 
     @Override
     public int getInt(final int bitSize) {
+        if (DEBUG){
+            Bits.log(TAG, "getInt bitSize:" + bitSize + " position:" + position);
+        }
         checkBitSize(32, bitSize);
 
         int value = 0;
@@ -57,6 +63,7 @@ public class HeapBitBuffer extends BitBuffer {
                 stopBit = bitPositionInCurrentByte + readBitSize;
 
                 bitValue = Bits.getByteBits(mData[bytePosition4Read], startBit, stopBit, order);
+                bitValue &= 0xFF;
                 cumulativeReadBitSize += readBitSize;
 
                 if (ByteOrder.BIG_ENDIAN == order){
@@ -64,8 +71,21 @@ public class HeapBitBuffer extends BitBuffer {
                 } else {
                     shift = cumulativeReadBitSize - readBitSize;
                 }
+                if (DEBUG){
+                    //++++++++++++++++++++++1234567890123456789012345678901234567890
+                    Bits.log(TAG, "getInt before add.    shift:" + shift);
+                }
                 bitValue = (bitValue << shift);
+
+                if (DEBUG){
+                    //++++++++++++++++++++++1234567890123456789012345678901234567890
+                    Bits.log(TAG, "getInt before add. bitValue:" + bitValue + " " + Bits.intStr4Debug(bitValue));
+                }
                 value |= (bitValue);
+                if (DEBUG){
+                    //++++++++++++++++++++++1234567890123456789012345678901234567890
+                    Bits.log(TAG, "getInt  after add.    value:" + value + " " + Bits.intStr4Debug(value));
+                }
 
                 bitPositionInCurrentByte = 0;
                 position += readBitSize;
@@ -77,24 +97,44 @@ public class HeapBitBuffer extends BitBuffer {
                 stopBit = bitPositionInCurrentByte + readBitSize;
 
                 bitValue = Bits.getByteBits(mData[bytePosition4Read], startBit, stopBit, order);
+                bitValue &= 0xFF;
                 cumulativeReadBitSize += readBitSize;
 
                 if (ByteOrder.LITTLE_ENDIAN == order){
                     shift = cumulativeReadBitSize - readBitSize;
+                    if (DEBUG){
+                        //++++++++++++++++++++++1234567890123456789012345678901234567890
+                        Bits.log(TAG, "getInt before add.    shift:" + shift);
+                    }
                     bitValue = bitValue << shift;
                 }
+                if (DEBUG){
+                    //++++++++++++++++++++++1234567890123456789012345678901234567890
+                    Bits.log(TAG, "getInt before add. bitValue:" + bitValue + " " + Bits.intStr4Debug(bitValue));
+                }
                 value |= bitValue;
+                if (DEBUG){
+                    //++++++++++++++++++++++1234567890123456789012345678901234567890
+                    Bits.log(TAG, "getInt  after add.    value:" + value + " " + Bits.intStr4Debug(value));
+                }
 
                 position += readBitSize;
                 i += readBitSize;
             }
         }
 
+        if (DEBUG){
+            Bits.log(TAG, "getInt. value:" + value + " " + Bits.intStr4Debug(value));
+        }
         return value;
     }
 
     @Override
     public BitBuffer setInt(int bitSize, int value) {
+        if (DEBUG){
+            Bits.log(TAG, "setInt. bitSize:" + bitSize + " value:" + value + " " + Bits.intStr4Debug(value));
+            Bits.log(TAG, "setInt. position:" + position);
+        }
         checkBitSize(32, bitSize);
 
         ByteOrder order = order();
@@ -119,6 +159,10 @@ public class HeapBitBuffer extends BitBuffer {
                 stopBit4Read = startBit4Read + bit2Write;
                 currentValue = Bits.getIntBits(value, startBit4Read, stopBit4Read, order);
 
+                if (DEBUG){
+                    Bits.log(TAG, "setInt. set currentBytePosition:" + currentBytePosition + " currentValue:" + currentValue + " " + Bits.intStr4Debug(currentValue));
+                    Bits.log(TAG, "setInt. set startBit4Write:" + startBit4Write + " stopBit4Write:" + stopBit4Write + " order:" + order);
+                }
                 Bits.set(mData, currentBytePosition, currentValue, startBit4Write, stopBit4Write, order);
 
                 startBit4Read += bit2Write;

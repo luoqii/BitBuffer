@@ -7,7 +7,7 @@ import java.nio.ByteOrder;
 import static android.support.annotation.VisibleForTesting.PRIVATE;
 
 public class Bits {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     private static final String TAG = "Bits";
 
     /**
@@ -32,12 +32,25 @@ public class Bits {
      * @param order 将 value 按指定字节序读取
      * @return
      */
-    public static int getByteBits(byte value, int startBit, int stopBit, ByteOrder order){
-        return getBits(value, 1, startBit, stopBit, order);
+    public static short getShortBits(short value, int startBit, int stopBit, ByteOrder order){
+        return (short) getBits(value, 2, startBit, stopBit, order);
+    }
+
+    /**
+     * 从 value 中，按照开始startBit位置到结束stopBit位置 取值
+     * 0 <= startBit < stopBit <= 8
+     * @param value 待取值，默认 BIG_ENDIAN 存放
+     * @param startBit 开始bit 位置（包括）
+     * @param stopBit  停止bit 位置（不包括）
+     * @param order 将 value 按指定字节序读取
+     * @return
+     */
+    public static byte getByteBits(byte value, int startBit, int stopBit, ByteOrder order){
+        return (byte) getBits(value, 1, startBit, stopBit, order);
     }
 
     public static int getBits(int value, int byteSize, int startBit, int stopBit, ByteOrder order){
-        if (!(0 <= startBit && startBit < stopBit  && startBit <= byteSize * 8)){
+        if (!(0 <= startBit && startBit < stopBit  && stopBit <= byteSize * 8)){
             throw new IllegalArgumentException("invalid arg. startBit:" + startBit + " stopBit:" + stopBit);
         }
 
@@ -55,12 +68,14 @@ public class Bits {
         }
 
         if (DEBUG){
-            System.err.println(TAG + " getBits value   :" + value + " " + intStr4Debug(value));
-            System.err.println(TAG + " getBits startBit:" + startBit + " stopBit:" + stopBit + " order:" + order);
-            System.err.println(TAG + " getBits result  :" + result);
+            log(TAG," getBits value   :" + value + " " + intStr4Debug(value));
+            log(TAG," getBits byteSize:" + byteSize + " startBit:" + startBit + " stopBit:" + stopBit + " order:" + order);
+            log(TAG," getBits result  :" + result + " " + intStr4Debug(result));
         }
+
         return result;
     }
+
 
     /**
      * 按照开始startBit位置（包括）到结束stopBit位置（不包括）获取对应掩码
@@ -92,6 +107,10 @@ public class Bits {
             throw new IllegalArgumentException("invalid startBit:" + startBit + " stopBit:" + stopBit);
         }
 
+        if (DEBUG){
+            log(TAG, "mask. byteSize:" + byteSize + " startBit:" + startBit  + " stopBit:" + stopBit + " order:" + order);
+        }
+
         int mask = 0;
 
         if (order == ByteOrder.BIG_ENDIAN){
@@ -105,6 +124,9 @@ public class Bits {
             }
         }
 
+        if (DEBUG){
+            log(TAG, "mask. mask:" + mask + " " + intStr4Debug(mask));
+        }
         return mask;
     }
 
@@ -143,8 +165,8 @@ public class Bits {
 
         if (DEBUG) {
             //+=======================123456789012345678901234567890
-            System.err.println(TAG + " before set:  byte2Set:" + byte2Set + " " + intStr4Debug(byte2Set));
-            System.err.println(TAG + " before set:    value:" + value + " startBit:" + startBit + " stopBit:" + stopBit + " order:" + order);
+            log(TAG," before set:  byte2Set:" + byte2Set + " " + intStr4Debug(byte2Set));
+            log(TAG," before set:  startBit:" + startBit + " stopBit:" + stopBit + " order:" + order + " value:" + value + " " + Bits.intStr4Debug(value));
         }
 
         int value2Set = 0;
@@ -162,7 +184,7 @@ public class Bits {
 
         if (DEBUG) {
             //+=======================123456789012345678901234567890
-            System.err.println(TAG + " before set: value2Set:" + value2Set + " " + intStr4Debug(value2Set));
+            log(TAG," before set: value2Set:" + value2Set + " " + intStr4Debug(value2Set));
         }
 
         // 用于保留其他bit位值
@@ -170,12 +192,17 @@ public class Bits {
         // 清除相应bit位[startbit,stopbit)的值
         int tmp = ((byte2Set & 0xFF) & (~selfMask));
 
+        if (DEBUG) {
+            //+=======================123456789012345678901234567890
+            log(TAG," before set:  otherbit:" + tmp + " " + intStr4Debug(tmp));
+        }
+
         tmp = tmp | value2Set;
         byte2Set = (byte) (tmp);
 
         if (DEBUG) {
             //+=======================123456789012345678901234567890
-            System.err.println(TAG + " after  set:  byte2Set:" + byte2Set + " " + intStr4Debug(byte2Set));
+            log(TAG," after  set:  byte2Set:" + byte2Set + " " + intStr4Debug(byte2Set));
         }
 
         return byte2Set;
@@ -183,6 +210,10 @@ public class Bits {
 
     public static String intStr4Debug(int value){
         return "0b" + Integer.toBinaryString(value) + " 0x" + Integer.toHexString(value);
+    }
+
+    static void log(String tag, String message){
+        System.err.println(tag + ":" + message);
     }
 
 //    public static int getIntBits(int value, int startBit, int stopBit) {
