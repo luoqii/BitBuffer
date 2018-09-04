@@ -340,7 +340,7 @@ abstract public class BitBuffer {
      */
     public final BitBuffer order(ByteOrder bo) {
         if (position % 8 != 0){
-            throw new IllegalStateException("current position[" + position + "] is not at byte boundary.");
+            throw new IllegalStateException("current position[" + position + "] is not at byte boundary, ie 8, 16, 32 ...");
         }
         bigEndian = (bo == ByteOrder.BIG_ENDIAN);
 //        nativeByteOrder =
@@ -387,6 +387,10 @@ abstract public class BitBuffer {
 
     // interface
 
+    public static BitBuffer allocateInByte(int byteSize){
+        return allocate(byteSize * 8);
+    }
+
     public static BitBuffer allocate(int bitSize){
         if (bitSize < 0)
             throw new IllegalArgumentException();
@@ -428,4 +432,36 @@ abstract public class BitBuffer {
      * @return
      */
     public abstract BitBuffer putInt(int index, int bitSize, int value);
+
+    /**
+     * Relative put method for writing byte array from this Bitbuffer
+     * @param values
+     * @return
+     */
+    public abstract BitBuffer put(byte[] values);
+
+    /**
+     * Relative put method for writing byte array from this Bitbuffer
+     * @param values
+     * @param  offset
+     * @param length
+     * @return
+     */
+    public abstract BitBuffer put(byte[] values, int offset, int length);
+
+    /**
+     * Relative get method for read byte to this Bitbuffer
+     * @param values
+     * @param  offset
+     * @param length
+     * @return
+     */
+    public abstract BitBuffer get(byte[] values, int offset, int length);
+
+    /**
+     * Relative get method for read byte too this Bitbuffer
+     * @param values
+     * @return
+     */
+    public abstract BitBuffer get(byte[] values);
 }

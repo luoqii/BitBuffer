@@ -1,9 +1,10 @@
 package org.bbs.nio;
 
 
-import java.nio.BufferOverflowException;
-import java.nio.BufferUnderflowException;
+import android.util.Log;
+
 import java.nio.ByteOrder;
+import java.util.Arrays;
 
 public class HeapBitBuffer extends BitBuffer {
     private static final boolean DEBUG = false;
@@ -37,7 +38,7 @@ public class HeapBitBuffer extends BitBuffer {
     @Override
     public int getInt(int bitSize){
         if (position + bitSize > limit()){
-            throw new BufferUnderflowException();
+            throw new BufferUnderflowException("positon:" + position + " bitSize:" + bitSize + " limit:" + limit());
         }
         int value = getIntAt(position, bitSize);
         position += bitSize;
@@ -48,7 +49,7 @@ public class HeapBitBuffer extends BitBuffer {
     @Override
     public int getInt(int index, int bitSize) {
         if (position + bitSize > limit()){
-            throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException("positon:" + position + " bitSize:" + bitSize + " limit:" + limit());
         }
         return getIntAt(index, bitSize);
     }
@@ -150,7 +151,7 @@ public class HeapBitBuffer extends BitBuffer {
     @Override
     public BitBuffer putInt(int bitSize, int value) {
         if (position + bitSize > limit()){
-            throw new BufferOverflowException();
+            throw new BufferOverflowException("positon:" + position + " bitSize:" + bitSize + " limit:" + limit());
         }
         putIntAt(position, bitSize, value);
         position += bitSize;
@@ -160,7 +161,7 @@ public class HeapBitBuffer extends BitBuffer {
     @Override
     public BitBuffer putInt(int index, int bitSize, int value) {
         if (position + bitSize > limit()){
-            throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException("positon:" + position + " bitSize:" + bitSize + " limit:" + limit());
         }
         return putIntAt(index, bitSize, value);
     }
@@ -220,6 +221,33 @@ public class HeapBitBuffer extends BitBuffer {
         }
 
         return this;
+    }
+
+    @Override
+    public BitBuffer put(byte[] values) {
+        return put(values, 0, values.length);
+    }
+
+    @Override
+    public BitBuffer put(byte[] values, int offset, int length) {
+        byte[] values2put = Arrays.copyOfRange(values, offset, offset + length);
+        for (byte b : values2put) {
+            putInt(8, b);
+        }
+        return this;
+    }
+
+    @Override
+    public BitBuffer get(byte[] values, int offset, int length) {
+        for (int i = 0 ; i < length ; i++){
+            values[offset + i] = (byte) getInt(8);
+        }
+        return this;
+    }
+
+    @Override
+    public BitBuffer get(byte[] values) {
+        return get(values, 0, values.length);
     }
 
     void checkBitSize(int maxSize, int bitSize){
